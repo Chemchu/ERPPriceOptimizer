@@ -8,16 +8,16 @@ const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const extension = '.xlsx';
 const returnFileNameProveedores = 'ProveedoresComparados.xlsx';
-const ubicacionProveedoresComp = './src/csvReader/' + returnFileNameProveedores;
+const ubicacionProveedoresComp = './src/priceComparator/' + returnFileNameProveedores;
 const nombreXLSXTienda = "Tienda.xlsx";
-const files = fs_1.default.readdirSync('./src/csvReader/');
+const files = fs_1.default.readdirSync('./src/priceComparator/');
 const targetFiles = files.filter(file => {
     return path_1.default.extname(file).toLowerCase() === extension && file != returnFileNameProveedores;
 });
 const XLSXToProductoArray = (fileName) => {
     let workSheets = {};
     let sName = "";
-    const workbook = xlsx_1.default.readFile(`./src/csvReader/${fileName}`);
+    const workbook = xlsx_1.default.readFile(`./src/priceComparator/${fileName}`);
     for (const sheetName of workbook.SheetNames) {
         sName = sheetName;
         workSheets[sheetName] = xlsx_1.default.utils.sheet_to_json(workbook.Sheets[sheetName]);
@@ -85,7 +85,7 @@ const CompararProductosPropios = (principal, proveedores) => {
     const newBook2 = xlsx_1.default.utils.book_new();
     const newSheet2 = xlsx_1.default.utils.json_to_sheet(TiendaProveedorMasBarato);
     xlsx_1.default.utils.book_append_sheet(newBook2, newSheet2, "Sheet1");
-    xlsx_1.default.writeFile(newBook2, "./src/csvReader/ReferenciasMasBaratas.xlsx");
+    xlsx_1.default.writeFile(newBook2, "./src/priceComparator/ReferenciasMasBaratas.xlsx");
 };
 const CalcularMasBaratos = (files) => {
     let prodTotal = [];

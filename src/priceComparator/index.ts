@@ -5,10 +5,10 @@ import fs from 'fs';
 
 const extension = '.xlsx';
 const returnFileNameProveedores = 'ProveedoresComparados.xlsx';
-const ubicacionProveedoresComp = './src/csvReader/' + returnFileNameProveedores;
+const ubicacionProveedoresComp = './src/priceComparator/' + returnFileNameProveedores;
 const nombreXLSXTienda = "Tienda.xlsx";
 
-const files = fs.readdirSync('./src/csvReader/');
+const files = fs.readdirSync('./src/priceComparator/');
 const targetFiles = files.filter(file => {
     return path.extname(file).toLowerCase() === extension && file != returnFileNameProveedores;
 });
@@ -16,7 +16,7 @@ const targetFiles = files.filter(file => {
 const XLSXToProductoArray = (fileName: string): Producto[] => {
     let workSheets: XLSX.WorkSheet = {}
     let sName = "";
-    const workbook: XLSX.WorkBook = XLSX.readFile(`./src/csvReader/${fileName}`);
+    const workbook: XLSX.WorkBook = XLSX.readFile(`./src/priceComparator/${fileName}`);
 
     for (const sheetName of workbook.SheetNames) {
         sName = sheetName;
@@ -100,7 +100,7 @@ const CompararProductosPropios = (principal: string, proveedores: Producto[]) =>
     const newBook2 = XLSX.utils.book_new();
     const newSheet2 = XLSX.utils.json_to_sheet(TiendaProveedorMasBarato);
     XLSX.utils.book_append_sheet(newBook2, newSheet2, "Sheet1");
-    XLSX.writeFile(newBook2, "./src/csvReader/ReferenciasMasBaratas.xlsx");
+    XLSX.writeFile(newBook2, "./src/priceComparator/ReferenciasMasBaratas.xlsx");
 }
 
 const CalcularMasBaratos = (files: string[]): Producto[] => {
