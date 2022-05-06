@@ -21,14 +21,37 @@ export interface ProductoVendido {
 
 export interface Venta {
     id: string,
-    tpvID: string,
-    fecha: Date,
-    clienteID: string,
-    clienteNombre: string,
-    total: number,
-    pagado: number,
-    entregado: number,
-    cambio: number,
-    isTarjeta: boolean,
     productos: ProductoVendido[]
+    dineroEntregadoEfectivo: number,
+    dineroEntregadoTarjeta: number,
+    precioVentaTotalSinDto: number,
+    precioVentaTotal: number,
+    cambio: number,
+    cliente: {
+        nombre: string,
+        nif: string,
+        calle: string,
+        cp: string
+    }
+    vendidoPor: {
+        nombre: string,
+        apellidos: string,
+        dni: string,
+        rol: string,
+        email: string
+    },
+    modificadoPor: {
+        nombre: string,
+        apellidos: string,
+        dni: string,
+        rol: string,
+        email: string,
+    },
+    tipo: string,
+    descuentoEfectivo: number,
+    descuentoPorcentaje: number,
+    tpv: string,
+    createdAt: Date,
+    updatedAt: Date,
 }
+

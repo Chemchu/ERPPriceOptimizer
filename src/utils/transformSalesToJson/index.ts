@@ -144,11 +144,11 @@ const CrearProductoVendido = (p: any): ProductoVendido => {
     return prod
 }
 
-let ventasMap = VentaXLSXToJson("ventas2.xlsx");
-ventasMap = AddProductosToVentas(ventasMap, "productosPorVenta2.xlsx");
+let ventasMap = VentaXLSXToJson("ventas.xlsx");
+ventasMap = AddProductosToVentas(ventasMap, "productosPorVenta.xlsx");
 const ventas = Array.from(ventasMap.values());
 
-fs.writeFile("ventasJsonTPV2.json", JSON.stringify(ventas), function (err) {
+fs.writeFile("ventasJsonTPV1.json", JSON.stringify(ventas), function (err) {
     if (err) {
         console.log(err);
     }
