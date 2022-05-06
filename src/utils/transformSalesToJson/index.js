@@ -3,14 +3,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TipoVenta = void 0;
 const xlsx_1 = __importDefault(require("xlsx"));
 const fs_1 = __importDefault(require("fs"));
-// const extension = '.xls';
-// const returnFileNameProveedores = 'salesJson.json'
-// const files = fs.readdirSync('./src/utils/transformSalesToJson/');
-// const targetFiles = files.filter(file => {
-//     return path.extname(file).toLowerCase() === extension && file != returnFileNameProveedores;
-// });
+var TipoVenta;
+(function (TipoVenta) {
+    TipoVenta["CobroRapido"] = "Cobro r\u00E1pido";
+    TipoVenta["Tarjeta"] = "Tarjeta";
+    TipoVenta["Efectivo"] = "Efectivo";
+})(TipoVenta = exports.TipoVenta || (exports.TipoVenta = {}));
 /** Convierte strings del tipo 'dd/mm/aa hh:mm' a un Date */
 const strToDate = (dtStr, hourStr) => {
     if (!dtStr)
@@ -40,19 +41,7 @@ const VentaXLSXToJson = (fileName) => {
     let ventasMap = new Map();
     for (let index = 0; index < ventas.length; index++) {
         const venta = ventas[index];
-        const updatedVenta = {
-            id: venta.id,
-            cambio: venta.cambio,
-            clienteNombre: venta.clienteNombre,
-            clienteID: venta.clienteID,
-            fecha: strToDate(venta.fecha, String(venta.hora)),
-            isTarjeta: venta.isTarjeta == 1,
-            entregado: venta.entregado,
-            pagado: venta.pagado,
-            productos: [],
-            total: venta.total,
-            tpvID: venta.tpvID,
-        };
+        const updatedVenta = CrearVenta(venta);
         ventasMap.set(updatedVenta.id, updatedVenta);
     }
     return ventasMap;
@@ -68,23 +57,7 @@ const AddProductosToVentas = (ventas, fileName) => {
     const prodPorVentas = workSheets[sName];
     for (let index = 0; index < prodPorVentas.length; index++) {
         const productoVendido = prodPorVentas[index];
-        // if (!productoVendido.ean) { continue; }
-        // if (!productoVendido.nombre) { continue; }
-        // if (!productoVendido.precioConIva) { continue; }
-        // if (!productoVendido.precioSinIva) { continue; }
-        // if (isNaN(productoVendido.precioConIva)) { console.error("El precio total de la venta no es un número"); continue; }
-        const prod = {
-            idVenta: productoVendido.idVenta,
-            idProducto: productoVendido.idProducto,
-            nombre: productoVendido.nombre,
-            cantidadVendida: productoVendido.cantidadVendida,
-            dto: productoVendido.dto,
-            ean: productoVendido.ean,
-            iva: productoVendido.iva,
-            precioConIva: productoVendido.precioConIva,
-            precioSinIva: productoVendido.precioSinIva,
-            nombreProveedor: productoVendido.nombreProveedor || "",
-        };
+        const prod = CrearProductoVendido(productoVendido);
         let venta = ventas.get(prod.idVenta);
         if (venta) {
             venta.productos.push(prod);
@@ -93,15 +66,52 @@ const AddProductosToVentas = (ventas, fileName) => {
     }
     return ventas;
 };
-const RestarHoras = (fecha, numHoras) => {
-    fecha.setHours(fecha.getHours() - numHoras);
-    return fecha;
+const CrearVenta = (v) => {
+    let tipo = v.isTarjeta == 1 ? TipoVenta.Tarjeta : TipoVenta.Efectivo;
+    let cambio = v.cambio;
+    let entregado = v.entregado;
+    if (v.cambio < 0) {
+        cambio = 0;
+        entregado = v.pagado;
+        tipo = TipoVenta.CobroRapido;
+    }
+    if (v.cambio > 0 && v.cambio < 0.01) {
+        cambio = 0;
+    }
+    const updatedVenta = {
+        id: v.id,
+        cambio: cambio,
+        clienteNombre: v.clienteNombre,
+        clienteID: v.clienteID,
+        fecha: strToDate(v.fecha, String(v.hora)),
+        tipo: tipo,
+        entregado: entregado,
+        pagado: v.pagado,
+        productos: [],
+        total: v.total,
+        tpvID: v.tpvID,
+    };
+    return updatedVenta;
 };
-let ventasMap = VentaXLSXToJson("ventas2.xlsx");
-ventasMap = AddProductosToVentas(ventasMap, "productosPorVenta2.xlsx");
+const CrearProductoVendido = (p) => {
+    const prod = {
+        idVenta: p.idVenta,
+        idProducto: p.idProducto,
+        nombre: p.nombre,
+        cantidadVendida: p.cantidadVendida,
+        dto: p.dto,
+        ean: p.ean,
+        iva: p.iva,
+        precioConIva: p.precioConIva,
+        precioSinIva: p.precioSinIva,
+        nombreProveedor: p.nombreProveedor || "",
+    };
+    return prod;
+};
+let ventasMap = VentaXLSXToJson("ventas.xlsx");
+ventasMap = AddProductosToVentas(ventasMap, "productosPorVenta.xlsx");
 const ventas = Array.from(ventasMap.values());
-const ventasJson = JSON.stringify(ventas.filter((v) => v.productos.length > 0));
-fs_1.default.writeFile("ventasJsonTPV2.json", ventasJson, function (err) {
+fs_1.default.writeFile("ventasJsonTPV1.json", JSON.stringify(ventas), function (err) {
     if (err) {
         console.log(err);
     }
