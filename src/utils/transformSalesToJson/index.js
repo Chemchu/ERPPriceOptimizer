@@ -78,12 +78,14 @@ const CrearVenta = (v) => {
     if (v.cambio > 0 && v.cambio < 0.01) {
         cambio = 0;
     }
+    const fecha = strToDate(v.fecha, String(v.hora));
     const updatedVenta = {
         id: v.id,
         cambio: cambio,
         clienteNombre: v.clienteNombre,
         clienteID: v.clienteID,
-        fecha: strToDate(v.fecha, String(v.hora)),
+        createdAt: fecha,
+        updatedAt: fecha,
         tipo: tipo,
         entregado: entregado,
         pagado: v.pagado,
@@ -108,10 +110,10 @@ const CrearProductoVendido = (p) => {
     };
     return prod;
 };
-let ventasMap = VentaXLSXToJson("ventas.xlsx");
-ventasMap = AddProductosToVentas(ventasMap, "productosPorVenta.xlsx");
+let ventasMap = VentaXLSXToJson("ventas2.xlsx");
+ventasMap = AddProductosToVentas(ventasMap, "productosPorVenta2.xlsx");
 const ventas = Array.from(ventasMap.values());
-fs_1.default.writeFile("ventasJsonTPV1.json", JSON.stringify(ventas), function (err) {
+fs_1.default.writeFile("ventasJsonTPV2.json", JSON.stringify(ventas), function (err) {
     if (err) {
         console.log(err);
     }

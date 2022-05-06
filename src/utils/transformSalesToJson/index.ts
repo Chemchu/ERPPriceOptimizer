@@ -87,12 +87,14 @@ const CrearVenta = (v: any): Venta => {
         cambio = 0;
     }
 
+    const fecha = strToDate(v.fecha, String(v.hora));
     const updatedVenta: Venta = {
         id: v.id,
         cambio: cambio,
         clienteNombre: v.clienteNombre,
         clienteID: v.clienteID,
-        fecha: strToDate(v.fecha, String(v.hora)),
+        createdAt: fecha,
+        updatedAt: fecha,
         tipo: tipo,
         entregado: entregado,
         pagado: v.pagado,
@@ -121,11 +123,11 @@ const CrearProductoVendido = (p: any): ProductoVendido => {
     return prod
 }
 
-let ventasMap = VentaXLSXToJson("ventas.xlsx");
-ventasMap = AddProductosToVentas(ventasMap, "productosPorVenta.xlsx");
+let ventasMap = VentaXLSXToJson("ventas2.xlsx");
+ventasMap = AddProductosToVentas(ventasMap, "productosPorVenta2.xlsx");
 const ventas = Array.from(ventasMap.values());
 
-fs.writeFile("ventasJsonTPV1.json", JSON.stringify(ventas), function (err) {
+fs.writeFile("ventasJsonTPV2.json", JSON.stringify(ventas), function (err) {
     if (err) {
         console.log(err);
     }
