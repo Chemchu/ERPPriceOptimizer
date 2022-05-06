@@ -89,18 +89,39 @@ const CrearVenta = (v: any): Venta => {
 
     const fecha = strToDate(v.fecha, String(v.hora));
     const updatedVenta: Venta = {
+        productos: [],
         id: v.id,
         cambio: cambio,
-        clienteNombre: v.clienteNombre,
-        clienteID: v.clienteID,
+        cliente: {
+            nombre: v.clienteNombre,
+            calle: v.clienteNombre,
+            cp: v.clienteNombre,
+            nif: v.clienteNombre
+        },
+        descuentoEfectivo: v.dto || 0,
+        descuentoPorcentaje: v.dto || 0,
+        dineroEntregadoTarjeta: tipo === TipoVenta.Tarjeta ? v.entregado : 0,
+        dineroEntregadoEfectivo: tipo === TipoVenta.Tarjeta ? 0 : v.entregado,
+        precioVentaTotalSinDto: v.total,
+        modificadoPor: {
+            apellidos: "",
+            dni: "",
+            email: "",
+            nombre: "",
+            rol: "",
+        },
+        vendidoPor: {
+            apellidos: "",
+            dni: "",
+            email: "",
+            nombre: "",
+            rol: "",
+        },
         createdAt: fecha,
         updatedAt: fecha,
         tipo: tipo,
-        entregado: entregado,
-        pagado: v.pagado,
-        productos: [],
-        total: v.total,
-        tpvID: v.tpvID,
+        precioVentaTotal: v.total,
+        tpv: v.tpvID,
     }
 
     return updatedVenta;
