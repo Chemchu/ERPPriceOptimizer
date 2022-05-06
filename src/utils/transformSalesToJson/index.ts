@@ -12,15 +12,21 @@ import { ProductoVendido, Venta } from "../../../types";
 // });
 
 /** Convierte strings del tipo 'dd/mm/aa hh:mm' a un Date */
-const strToDate = (dtStr: string): Date => {
+const strToDate = (dtStr: string, hourStr: string): Date => {
     if (!dtStr) throw "El argumento dtStr no puede estar vacío";
+    if (!hourStr) throw "El argumento hourStr no puede estar vacío";
 
     let dateParts = dtStr.split("/");
-    let timeParts = dateParts[2].split(" ")[1].split(":");
-    dateParts[2] = dateParts[2].split(" ")[0];
+    let timeParts: string[] = [];
 
-    // month is 0-based, that's why we need dataParts[1] - 1
-    const fechaFinal = new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0]), Number(timeParts[0]), Number(timeParts[1]), Number(timeParts[2]))
+    if (hourStr.length > 3) {
+        timeParts = [hourStr.substring(0, 2), hourStr.substring(2)]
+    }
+    else {
+        timeParts = [`0${hourStr.substring(0, 1)}`, hourStr.substring(1)]
+    }
+
+    const fechaFinal = new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0]), Number(timeParts[0]), Number(timeParts[1]))
     return fechaFinal;
 }
 
@@ -43,7 +49,7 @@ const VentaXLSXToJson = (fileName: string): Map<string, Venta> => {
             cambio: venta.cambio,
             clienteNombre: venta.clienteNombre,
             clienteID: venta.clienteID,
-            fecha: strToDate(venta.fecha),
+            fecha: strToDate(venta.fecha, String(venta.hora)),
             isTarjeta: venta.isTarjeta == 1,
             entregado: venta.entregado,
             pagado: venta.pagado,
@@ -73,13 +79,11 @@ const AddProductosToVentas = (ventas: Map<string, Venta>, fileName: string): Map
     for (let index = 0; index < prodPorVentas.length; index++) {
         const productoVendido = prodPorVentas[index];
 
-        if (!productoVendido.ean) { continue; }
+        // if (!productoVendido.ean) { continue; }
         // if (!productoVendido.nombre) { continue; }
         // if (!productoVendido.precioConIva) { continue; }
         // if (!productoVendido.precioSinIva) { continue; }
-
         // if (isNaN(productoVendido.precioConIva)) { console.error("El precio total de la venta no es un número"); continue; }
-
 
         const prod: ProductoVendido = {
             idVenta: productoVendido.idVenta,
@@ -105,26 +109,20 @@ const AddProductosToVentas = (ventas: Map<string, Venta>, fileName: string): Map
     return ventas;
 }
 
+const RestarHoras = (fecha: Date, numHoras: number): Date => {
+    fecha.setHours(fecha.getHours() - numHoras);
+
+    return fecha;
+}
+
+
 let ventasMap = VentaXLSXToJson("ventas2.xlsx");
 ventasMap = AddProductosToVentas(ventasMap, "productosPorVenta2.xlsx");
 const ventas = Array.from(ventasMap.values());
 const ventasJson = JSON.stringify(ventas.filter((v) => v.productos.length > 0));
 
-fs.writeFile("ventasJson.json", ventasJson, function (err) {
+fs.writeFile("ventasJsonTPV2.json", ventasJson, function (err) {
     if (err) {
         console.log(err);
     }
 });
-
-
-// Modify the XLSX
-    // worksheets[sName].push({
-    //     "First Name": "Bob",
-    //     "Last Name": "Bob",
-    //     "Gender": "Male",
-    //     "Country": "United States",
-    //     "Age": 35,
-    //     "Date": "22/09/2020",
-    //     "Id": 1600,
-    //     "New Column": "test"
-    // });
