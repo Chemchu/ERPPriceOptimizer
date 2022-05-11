@@ -42,7 +42,9 @@ const VentaXLSXToJson = (fileName) => {
     for (let index = 0; index < ventas.length; index++) {
         const venta = ventas[index];
         const updatedVenta = CrearVenta(venta);
-        ventasMap.set(updatedVenta.id, updatedVenta);
+        if (updatedVenta) {
+            ventasMap.set(updatedVenta.id, updatedVenta);
+        }
     }
     return ventasMap;
 };
@@ -67,6 +69,9 @@ const AddProductosToVentas = (ventas, fileName) => {
     return ventas;
 };
 const CrearVenta = (v) => {
+    if (v.total <= 0) {
+        return undefined;
+    }
     let tipo = v.isTarjeta == 1 ? TipoVenta.Tarjeta : TipoVenta.Efectivo;
     let cambio = v.cambio;
     let entregado = v.entregado;
@@ -125,16 +130,17 @@ const CrearProductoVendido = (p) => {
         dto: p.dto,
         ean: p.ean,
         iva: p.iva,
-        precioConIva: p.precioConIva,
-        precioSinIva: p.precioSinIva,
+        precioCompra: p.precioSinIva,
+        precioVenta: p.precioConIva,
         nombreProveedor: p.nombreProveedor || "",
+        margen: p.margen
     };
     return prod;
 };
-let ventasMap = VentaXLSXToJson("ventas.xlsx");
-ventasMap = AddProductosToVentas(ventasMap, "productosPorVenta.xlsx");
+let ventasMap = VentaXLSXToJson("ventas2.xlsx");
+ventasMap = AddProductosToVentas(ventasMap, "productosPorVenta2.xlsx");
 const ventas = Array.from(ventasMap.values());
-fs_1.default.writeFile("ventasJsonTPV1.json", JSON.stringify(ventas), function (err) {
+fs_1.default.writeFile("ventasJsonTPV2.json", JSON.stringify(ventas), function (err) {
     if (err) {
         console.log(err);
     }

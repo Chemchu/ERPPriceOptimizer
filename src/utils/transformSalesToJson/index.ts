@@ -42,7 +42,9 @@ const VentaXLSXToJson = (fileName: string): Map<string, Venta> => {
     for (let index = 0; index < ventas.length; index++) {
         const venta = ventas[index];
         const updatedVenta = CrearVenta(venta);
-        ventasMap.set(updatedVenta.id, updatedVenta);
+        if (updatedVenta) {
+            ventasMap.set(updatedVenta.id, updatedVenta);
+        }
     }
 
     return ventasMap;
@@ -58,7 +60,7 @@ const AddProductosToVentas = (ventas: Map<string, Venta>, fileName: string): Map
         workSheets[sheetName] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
     }
 
-    const prodPorVentas = workSheets[sName] as ProductoVendido[];
+    const prodPorVentas = workSheets[sName] as any[];
 
     for (let index = 0; index < prodPorVentas.length; index++) {
         const productoVendido = prodPorVentas[index];
@@ -73,7 +75,9 @@ const AddProductosToVentas = (ventas: Map<string, Venta>, fileName: string): Map
     return ventas;
 }
 
-const CrearVenta = (v: any): Venta => {
+const CrearVenta = (v: any): Venta | undefined => {
+    if (v.total <= 0) { return undefined }
+
     let tipo: TipoVenta = v.isTarjeta == 1 ? TipoVenta.Tarjeta : TipoVenta.Efectivo;
     let cambio = v.cambio;
     let entregado = v.entregado;
@@ -136,19 +140,20 @@ const CrearProductoVendido = (p: any): ProductoVendido => {
         dto: p.dto,
         ean: p.ean,
         iva: p.iva,
-        precioConIva: p.precioConIva,
-        precioSinIva: p.precioSinIva,
+        precioCompra: p.precioSinIva,
+        precioVenta: p.precioConIva,
         nombreProveedor: p.nombreProveedor || "",
+        margen: p.margen
     }
 
     return prod
 }
 
-let ventasMap = VentaXLSXToJson("ventas.xlsx");
-ventasMap = AddProductosToVentas(ventasMap, "productosPorVenta.xlsx");
+let ventasMap = VentaXLSXToJson("ventas2.xlsx");
+ventasMap = AddProductosToVentas(ventasMap, "productosPorVenta2.xlsx");
 const ventas = Array.from(ventasMap.values());
 
-fs.writeFile("ventasJsonTPV1.json", JSON.stringify(ventas), function (err) {
+fs.writeFile("ventasJsonTPV2.json", JSON.stringify(ventas), function (err) {
     if (err) {
         console.log(err);
     }
